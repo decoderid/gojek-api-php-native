@@ -14,6 +14,7 @@ AppVersion: 4.74.3
 - [x] Transaction Detail
 - [x] Bank List
 - [x] Validate Bank
+- [x] Validate P2P
 - [x] Transfer Bank
 - [x] Transfer Gopay (P2P Sesama Akun)
 - [x] Validate QRCode
