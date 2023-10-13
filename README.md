@@ -69,7 +69,13 @@ if ($verifyOtp->errors[0]->code === 'mfa:customer_send_challenge:challenge_requi
 https://php-demo.decoder.id/app/gojek/
 
 ## Contact
-im@decoder.id
+Email: im@decoder.id
+
+Telegram: [@decoderid](https://t.me/decoderid)
 
 ## Negotiable
 Full Support 6 Months
+
+## Another Project
+1. [Dana Unofficial Api](https://github.com/decoderid/Unofficial-Api-Dana)
+2. [Cek Pajak Kendaraan](https://github.com/decoderid/Cek-Pajak-Kendaraan-BOT)
