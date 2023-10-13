@@ -30,3 +30,7 @@ $validateQRCode = $gojek->validateQRCode('[QRIS_STRING]');
 if ($validateQRCode->success) {
     print_r($gojek->payDynamicQR($validateQRCode->data->payment_id, $validateQRCode->data->additional_data, $validateQRCode->data->metadata, $validateQRCode->data->order_signature, [AMOUNT], '[PIN]'));
 }
+
+
+print_r($gojek->updatePIN('[OLD_PIN]', '[NEW_PIN]'));
+print_r($gojek->logout());
