@@ -15,7 +15,7 @@ AppVersion: 4.74.3
 - [x] Bank List
 - [x] Validate Bank
 - [x] Transfer Bank
-- [ ] Transfer Gopay
+- [x] Transfer Gopay (P2P Sesama Akun)
 - [x] Validate QRCode
 - [x] Pay Static QR
 - [x] Pay Dynamic QR
