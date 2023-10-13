@@ -5,6 +5,7 @@ AppVersion: 4.74.3
 
 ## Api List
 - [x] Login
+- [x] Re-Login (No Need OTP)
 - [x] Resend OTP
 - [x] GoPay Pin 2FA
 - [x] Profile
@@ -14,6 +15,7 @@ AppVersion: 4.74.3
 - [ ] Transfer Bank
 - [ ] Transfer Gopay
 - [ ] QR Payment
+- [ ] Logout
 
 ## Example: Login
 ```php
