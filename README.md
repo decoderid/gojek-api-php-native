@@ -12,9 +12,13 @@ AppVersion: 4.74.3
 - [x] Balance
 - [x] Transaction List
 - [x] Transaction Detail
-- [ ] Transfer Bank
+- [x] Bank List
+- [x] Validate Bank
+- [x] Transfer Bank
 - [ ] Transfer Gopay
-- [ ] QR Payment
+- [x] Validate QRCode
+- [x] Pay Static QR
+- [x] Pay Dynamic QR
 - [ ] Logout
 
 ## Example: Login
