@@ -20,7 +20,8 @@ AppVersion: 4.74.3
 - [x] Validate QRCode
 - [x] Pay Static QR
 - [x] Pay Dynamic QR
-- [ ] Logout
+- [x] Update PIN
+- [x] Logout
 
 ## Example: Login
 ```php
