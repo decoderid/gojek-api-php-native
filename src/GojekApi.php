@@ -1,8 +1,7 @@
 <?php
+namespace Decoderid;
 
-require_once('Constant.php');
-
-class Gojek {
+class GojekApi {
 
     private $headers = [
         'Content-Type: application/json',
@@ -56,6 +55,22 @@ class Gojek {
         curl_close($ch);
         
         return json_decode($exec);
+    }
+
+    public function setUuid($uuid) {
+        if (($key = array_search('X-Uniqueid: ' . X_UNIQUEID, $this->headers)) !== false) {
+            unset($this->headers[$key]);
+        }
+
+        $this->headers = array_merge($this->headers, [
+            'X-Uniqueid: ' . $uuid
+        ]);
+    }
+
+    public function generateUuid() {
+        $splits = explode('-', $this->uuid());
+        $result =  $splits[0] . $splits[1] . $splits[2];
+        return $result;
     }
 
     public function login($phone) {

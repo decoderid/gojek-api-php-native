@@ -33,12 +33,14 @@ Gimme Buff to Get More Power: https://trakteer.id/decoderid
 ## Example: Login
 ```php
 <?php
-require_once('Gojek.php');
+require_once 'vendor/autoload.php';
+
+use Decoderid/GojekApi;
 
 $phone = '[PHONE]';
 $pin = '[PIN]';
 
-$gojek = new Gojek();
+$gojek = new GojekApi();
 $login = $gojek->login($phone, $pin);
 
 /**

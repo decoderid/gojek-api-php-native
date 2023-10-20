@@ -1,36 +1,45 @@
 <?php
 
-require_once('Gojek.php');
+require_once 'vendor/autoload.php';
 
-$accessToken = '';
+use Decoderid\GojekApi;
 
-$gojek = new Gojek($accessToken);
+$gojek = new GojekApi();
 
-print_r($gojek->login('[PHONE]'));
-print_r($gojek->relogin('[PHONE]', '[PIN]'));
-print_r($gojek->verifyOtp('[OTP]', '[OTP_TOKEN]'));
-print_r($gojek->verifyMFA('[CHALLENGE_ID]', '[PIN]'));
-print_r($gojek->verifyMFAToken('[CHALLENGE_TOKEN]', '[TOKEN]'));
-print_r($gojek->resendOtp('[OTP_TOKEN'));
-print_r($gojek->getProfile());
-print_r($gojek->getBalance());
-print_r($gojek->getTransactionList());
-print_r($gojek->getTransactionDetail('[payment_id|order_id]'));
-print_r($gojek->getBankList());
-print_r($gojek->validateBank('[BANK_CODE]', '[ACCOUNT_NUMBER]'));
-print_r($gojek->validateP2P('[PHONE_NUMBER]'));
-print_r($gojek->transferBank('[BANK_CODE]', '[ACCOUNT_NUMBER]', '[AMOUNT]', '[NOTES]', '[PIN]'));
-print_r($gojek->transferP2P('[PHONE_NUMBER]', [AMOUNT], '[PIN]'));
-$validateQRCode = $gojek->validateQRCode('[QRIS_STRING]');
-if ($validateQRCode->success) {
-    print_r($gojek->payStaticQR($validateQRCode->data->payee, $validateQRCode->data->additional_data, $validateQRCode->data->metadata, $validateQRCode->data->order_signature, [AMOUNT], '[PIN]'));
+/** SET UUID */
+$uuid = $gojek->generateUuid();
+$gojek->setUuid($uuid);
+
+/** LOGIN */
+$phone = '[PHONE]';
+$pin = '[PIN]';
+
+$login = $gojek->login($phone, $pin);
+
+/**
+ * VERIFY OTP
+ */
+$verifyOtp = $gojek->verifyOtp('[OTP]', $login->data->otp_token);
+
+if ($verifyOtp->access_token) {
+    print_r($verifyOtp);
 }
 
-$validateQRCode = $gojek->validateQRCode('[QRIS_STRING]');
-if ($validateQRCode->success) {
-    print_r($gojek->payDynamicQR($validateQRCode->data->payment_id, $validateQRCode->data->additional_data, $validateQRCode->data->metadata, $validateQRCode->data->order_signature, [AMOUNT], '[PIN]'));
+if ($verifyOtp->success) {
+    print_r($verifyOtp);
 }
 
+/**
+ * IF PIN AUTHENTICATION AFTER OTP
+ */
+if ($verifyOtp->errors[0]->code === 'mfa:customer_send_challenge:challenge_required') {
+    $challengeToken = $verifyOtp->errors[0]->details->challenge_token;
+    $challengeId = $verifyOtp->errors[0]->details->challenges[0]->gopay_challenge_id;
 
-print_r($gojek->updatePIN('[OLD_PIN]', '[NEW_PIN]'));
-print_r($gojek->logout());
+    $verifyMFA = $gojek->verifyMFA($challengeId, $pin);
+
+    if ($verifyMFA->success) {
+        $verifyMFAToken = $gojek->verifyMFAToken($challengeToken, $verifyMFA->data->token);
+        print_r($verifyMFAToken);
+    }
+}
