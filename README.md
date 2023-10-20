@@ -30,6 +30,12 @@ Gimme Buff to Get More Power: https://trakteer.id/decoderid
 - [x] Update PIN
 - [x] Logout
 
+## Composer
+
+```bash
+$ composer require decoderid/gojek-api
+```
+
 ## Example: Login
 ```php
 <?php
