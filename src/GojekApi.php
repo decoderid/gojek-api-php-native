@@ -342,16 +342,37 @@ class GojekApi {
     }
 
     public function payDynamicQR($paymentId, $additionalData, $metaData, $orderSignature, $amount, $pin) {
+    public function payDynamicQR($payee, $additionalData, $metaData, $orderSignature, $amount, $pin)
+    {
 
         $query = http_build_query([
             'fetch_promotion_details' => false
         ]);
 
-        $inquiry = $this->request('GET', EP_PAYMENTS_V1 . '/' . $paymentId . '?' . $query);
+        $inquiry = $this->request('POST', EP_PAYMENTS_V1,  [
+            'additional_data' => $additionalData,
+            'amount' => [
+                'currency' => 'IDR',
+                'value' => $amount->value
+            ],
+            'channel_type' => 'DYNAMIC_QR',
+            'checksum' => json_decode($metaData->checksum),
+            'fetch_promotion_details' => false,
+            'metadata' => $metaData,
+            'order_signature' => $orderSignature,
+            'payee' => $payee,
+            'payment_intent' => $metaData->payment_widget_intent
+        ], [
+            'Idempotency-Key: ' . $this->uuid()
+        ]);
 
         if (!$inquiry->success) {
             return 'Error Inquiry';
         }
+
+        // $test = $this->request('GET', EP_PAYMENTS_V1 . '/' . $inquiry->data->payment_id . '?' . $query);
+        // print_r($test);
+
 
         $query = http_build_query([
             'intent' => $inquiry->data->intent,
@@ -402,4 +423,4 @@ class GojekApi {
     public function logout() {
         return $this->request('DELETE', EP_VERIFY_OTP);
     }
-}
+}}
