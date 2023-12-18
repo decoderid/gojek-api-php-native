@@ -1,11 +1,13 @@
 <?php
+
 namespace Decoderid;
 
-class GojekApi {
+class GojekApi
+{
 
     private $headers = [
         'Content-Type: application/json',
-        'User-Agent: '. USER_AGENT,
+        'User-Agent: ' . USER_AGENT,
         'X-Platform: ' . X_PLATFORM,
         'X-Uniqueid: ' . X_UNIQUEID,
         'X-Appversion: ' . X_APPVERSION,
@@ -17,7 +19,8 @@ class GojekApi {
         'Gojek-Country-Code: ' . GOJEK_COUNTRY_CODE
     ];
 
-    public function __construct($token = '') {
+    public function __construct($token = '')
+    {
         if ($token) {
             $this->headers = array_merge($this->headers, [
                 'Authorization: Bearer ' . $token
@@ -25,17 +28,23 @@ class GojekApi {
         }
     }
 
-    private function uuid() {
-        return sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
-          mt_rand(0, 0xffff), mt_rand(0, 0xffff),
-          mt_rand(0, 0xffff),
-          mt_rand(0, 0x0fff) | 0x4000,
-          mt_rand(0, 0x3fff) | 0x8000,
-          mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
+    private function uuid()
+    {
+        return sprintf(
+            '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0x0fff) | 0x4000,
+            mt_rand(0, 0x3fff) | 0x8000,
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0xffff)
         );
     }
 
-    private function request($method, $url, $payload = [], $headers = []) {
+    private function request($method, $url, $payload = [], $headers = [])
+    {
 
         $method = strtoupper($method);
 
@@ -50,14 +59,15 @@ class GojekApi {
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
         }
-        
+
         $exec = curl_exec($ch);
         curl_close($ch);
-        
+
         return json_decode($exec);
     }
 
-    public function setUuid($uuid) {
+    public function setUuid($uuid)
+    {
         if (($key = array_search('X-Uniqueid: ' . X_UNIQUEID, $this->headers)) !== false) {
             unset($this->headers[$key]);
         }
@@ -67,13 +77,15 @@ class GojekApi {
         ]);
     }
 
-    public function generateUuid() {
+    public function generateUuid()
+    {
         $splits = explode('-', $this->uuid());
         $result =  $splits[0] . $splits[1] . $splits[2];
         return $result;
     }
 
-    public function login($phone) {
+    public function login($phone)
+    {
         return $this->request('POST', EP_LOGIN_REQUEST, [
             'client_id' => CLIENT_ID,
             'client_secret' => CLIENT_SECRET,
@@ -84,7 +96,8 @@ class GojekApi {
         ]);
     }
 
-    public function relogin($phone, $pin) {
+    public function relogin($phone, $pin)
+    {
         $challenge = $this->request('POST', EP_LOGIN_REQUEST, [
             'client_id' => CLIENT_ID,
             'client_secret' => CLIENT_SECRET,
@@ -122,7 +135,8 @@ class GojekApi {
         return $token;
     }
 
-    public function verifyOtp($otp, $otp_token) {
+    public function verifyOtp($otp, $otp_token)
+    {
         return $this->request('POST', EP_VERIFY_OTP, [
             'client_id' => CLIENT_ID,
             'client_secret' => CLIENT_SECRET,
@@ -135,7 +149,8 @@ class GojekApi {
         ]);
     }
 
-    public function verifyMFA($challenge_id, $pin) {
+    public function verifyMFA($challenge_id, $pin)
+    {
         return $this->request('POST', EP_VERIFY_MFA, [
             'challenge_id' => $challenge_id,
             'client_id' => CLIENT_ID_MFA,
@@ -143,7 +158,8 @@ class GojekApi {
         ]);
     }
 
-    public function verifyMFAToken($challenge_token, $token) {
+    public function verifyMFAToken($challenge_token, $token)
+    {
         return $this->request('POST', EP_VERIFY_OTP, [
             'client_id' => CLIENT_ID,
             'client_secret' => CLIENT_SECRET,
@@ -161,22 +177,26 @@ class GojekApi {
         ]);
     }
 
-    public function resendOtp($otp_token) {
+    public function resendOtp($otp_token)
+    {
         return $this->request('POST', EP_RESEND_OTP, [
             'channel_type' => CHANNEL_TYPE_SMS,
             'otp_token' => $otp_token
         ]);
     }
 
-    public function getProfile() {
+    public function getProfile()
+    {
         return $this->request('GET', EP_CUSTOMER);
     }
 
-    public function getBalance() {
+    public function getBalance()
+    {
         return $this->request('GET', EP_PAYMENT_OPTIONS_BALANCES);
     }
 
-    public function getTransactionList($page = 1, $limit = 10, $startDate = '', $endDate = '') {
+    public function getTransactionList($page = 1, $limit = 10, $startDate = '', $endDate = '')
+    {
 
         $query = http_build_query([
             'page' => $page,
@@ -189,15 +209,17 @@ class GojekApi {
         return $this->request('GET', EP_USER_ORDER_HISTORY . '?' . $query);
     }
 
-    public function getTransactionDetail($order_id) {
+    public function getTransactionDetail($order_id)
+    {
         $query = [
             'country_code' => COUNTRY_CODE_ID
         ];
-        
+
         return $this->request('GET', str_replace('{{ORDER_ID}}', $order_id, EP_USER_ORDER_HISTORY_DETAIL) . '?' . $query);
     }
 
-    public function getBankList() {
+    public function getBankList()
+    {
         $query = http_build_query([
             'type' => 'transfer',
             'show_withdrawal_block_status' => false
@@ -206,7 +228,8 @@ class GojekApi {
         return $this->request('GET', EP_BANK_LIST . '?' . $query);
     }
 
-    public function validateBank($bankCode, $accountNumber) {
+    public function validateBank($bankCode, $accountNumber)
+    {
         $query = http_build_query([
             'bank_code' => $bankCode,
             'account_number' => $accountNumber
@@ -215,7 +238,8 @@ class GojekApi {
         return $this->request('GET', EP_VALIDATE_BANK . '?' . $query);
     }
 
-    public function validateP2P($phoneNumber) {
+    public function validateP2P($phoneNumber)
+    {
 
         $query = http_build_query([
             'phone_number' => $phoneNumber
@@ -224,7 +248,8 @@ class GojekApi {
         return $this->request('GET', EP_VALIDATE_P2P . '?' . $query);
     }
 
-    public function transferBank($bankCode, $accountNumber, $amount, $notes, $pin) {
+    public function transferBank($bankCode, $accountNumber, $amount, $notes, $pin)
+    {
         $validateBank = $this->validateBank($bankCode, $accountNumber);
 
         if (!$validateBank->success) {
@@ -245,7 +270,8 @@ class GojekApi {
         ]);
     }
 
-    public function transferP2P($phoneNumber, $amount, $pin) {
+    public function transferP2P($phoneNumber, $amount, $pin)
+    {
         $validateP2P = $this->validateP2P($phoneNumber);
 
         if (!$validateP2P->success) {
@@ -274,14 +300,16 @@ class GojekApi {
         ]);
     }
 
-    public function validateQRCode($data) {
+    public function validateQRCode($data)
+    {
         return $this->request('POST', EP_EXPLORE, [
             'data' => $data,
             'type' => 'QR_CODE'
         ]);
     }
 
-    public function payStaticQR($payee, $additionalData, $metaData, $orderSignature, $amount, $pin) {
+    public function payStaticQR($payee, $additionalData, $metaData, $orderSignature, $amount, $pin)
+    {
 
         $inquiry = $this->request('POST', EP_PAYMENTS_V1,  [
             'additional_data' => $additionalData,
@@ -341,7 +369,6 @@ class GojekApi {
         ]);
     }
 
-    public function payDynamicQR($paymentId, $additionalData, $metaData, $orderSignature, $amount, $pin) {
     public function payDynamicQR($payee, $additionalData, $metaData, $orderSignature, $amount, $pin)
     {
 
@@ -412,7 +439,8 @@ class GojekApi {
         ]);
     }
 
-    public function updatePIN($oldPin, $newPin) {
+    public function updatePIN($oldPin, $newPin)
+    {
         return $this->request('PUT', EP_PIN_UPDATE, [
             'new_pin' => $newPin
         ], [
@@ -420,7 +448,8 @@ class GojekApi {
         ]);
     }
 
-    public function logout() {
+    public function logout()
+    {
         return $this->request('DELETE', EP_VERIFY_OTP);
     }
-}}
+}
