@@ -281,24 +281,28 @@ class GojekApi {
         ]);
     }
 
-    public function payStaticQR($payee, $additionalData, $metaData, $orderSignature, $amount, $pin) {
-
-        $inquiry = $this->request('POST', EP_PAYMENTS_V1,  [
-            'additional_data' => $additionalData,
+    public function paymentQR($validateQRCode, $amount) {
+        return $this->request('POST', EP_PAYMENTS_V1,  [
+            'additional_data' => $validateQRCode->data->additional_data,
             'amount' => [
                 'currency' => 'IDR',
                 'value' => $amount
             ],
             'channel_type' => 'STATIC_QR',
-            'checksum' => json_decode($metaData->checksum),
+            'checksum' => json_decode($validateQRCode->data->metadata->checksum),
             'fetch_promotion_details' => false,
-            'metadata' => $metaData,
-            'order_signature' => $orderSignature,
-            'payee' => $payee,
-            'payment_intent' => $metaData->payment_widget_intent
+            'metadata' => $validateQRCode->data->metadata,
+            'order_signature' => $validateQRCode->data->order_signature,
+            'payee' => $validateQRCode->data->payee,
+            'payment_intent' => $validateQRCode->data->metadata->payment_widget_intent
         ], [
             'Idempotency-Key: ' . $this->uuid()
         ]);
+    }
+
+    public function payStaticQR($validateQRCode, $amount, $pin) {
+
+        $inquiry = $this->paymentQR($validateQRCode, $amount);
 
         if (!$inquiry->success) {
             return 'Error Inquiry';
@@ -318,13 +322,13 @@ class GojekApi {
         $paymentOptionsToken = $paymentOptions->data->payment_options[0]->token;
 
         return $this->request('PATCH', str_replace('{{PAYMENT_ID}}', $inquiry->data->payment_id, EP_PAYMENTS_V3),  [
-            'additional_data' => $additionalData,
+            'additional_data' => $validateQRCode->data->additional_data,
             'applied_promo_code' => [
                 'NO_PROMO_APPLIED'
             ],
-            'checksum' => json_decode($metaData->checksum),
-            'metadata' => $metaData,
-            'order_signature' => $orderSignature,
+            'checksum' => json_decode($validateQRCode->data->metadata->checksum),
+            'metadata' => $validateQRCode->data->metadata,
+            'order_signature' => $validateQRCode->data->order_signature,
             'payment_instructions' => [
                 [
                     'amount' => [
@@ -341,13 +345,15 @@ class GojekApi {
         ]);
     }
 
-    public function payDynamicQR($paymentId, $additionalData, $metaData, $orderSignature, $amount, $pin) {
+    public function payDynamicQR($validateQRCode, $amount, $pin) {
+
+        $payment = $this->paymentQR($validateQRCode, $amount);
 
         $query = http_build_query([
             'fetch_promotion_details' => false
         ]);
 
-        $inquiry = $this->request('GET', EP_PAYMENTS_V1 . '/' . $paymentId . '?' . $query);
+        $inquiry = $this->request('GET', EP_PAYMENTS_V1 . '/' . $payment->data->payment_id . '?' . $query);
 
         if (!$inquiry->success) {
             return 'Error Inquiry';
@@ -366,15 +372,15 @@ class GojekApi {
 
         $paymentOptionsToken = $paymentOptions->data->payment_options[0]->token;
 
-        return $this->request('PATCH', str_replace('{{PAYMENT_ID}}', $inquiry->data->payment_id, EP_PAYMENTS_V3),  [
-            'additional_data' => $additionalData,
+        return $this->request('PATCH', str_replace('{{PAYMENT_ID}}', $payment->data->payment_id, EP_PAYMENTS_V3),  [
+            'additional_data' => $validateQRCode->data->additional_data,
             'applied_promo_code' => [
                 'NO_PROMO_APPLIED'
             ],
             'channel_type' => 'DYNAMIC_QR',
-            'checksum' => json_decode($metaData->checksum),
-            'metadata' => $metaData,
-            'order_signature' => $orderSignature,
+            'checksum' => json_decode($validateQRCode->data->metadata->checksum),
+            'metadata' => $validateQRCode->data->metadata,
+            'order_signature' => $validateQRCode->data->order_signature,
             'payment_instructions' => [
                 [
                     'amount' => [
