@@ -18,7 +18,7 @@ define('COUNTRY_CODE_ID', 'ID');
  */
 define('X_PLATFORM', 'Android');
 define('X_UNIQUEID', 'c6ad2e615cf54aa5');
-define('X_APPVERSION', '4.74.3');
+define('X_APPVERSION', '4.90.2');
 define('X_APPID', 'com.gojek.app');
 define('X_USER_TYPE', 'customer');
 define('X_DEVICE_OS', 'Android,9');
